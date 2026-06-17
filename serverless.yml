@@ -1,0 +1,27 @@
+service: contact-service
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  #timeout: 120
+  environment:
+    MONGO_URI: ${env:MONGO_URI}
+
+plugins:
+  - serverless-offline
+
+functions:
+  createUser:
+    handler: src/handlers/createContact.handler
+    events:
+      - httpApi:
+          path: /contacts
+          method: post
+
+  getUsers:
+    handler: src/handlers/getContacts.handler
+    events:
+      - httpApi:
+          path: /contacts
+          method: get
