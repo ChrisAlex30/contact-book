@@ -7,21 +7,63 @@ provider:
   #timeout: 120
   environment:
     MONGO_URI: ${env:MONGO_URI}
+    BUCKET_NAME: ${env:BUCKET_NAME}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource:
+            - arn:aws:s3:::${env:BUCKET_NAME}/*
+
+  httpApi:
+    authorizers:      
+      jwtAuthorizer:
+        type: jwt
+        identitySource: 
+          - $request.header.Authorization
+        issuerUrl: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_Y0tHEPU6x
+        audience:
+          - 7h9mutph8gclo7uoeeloepa3oo
 
 plugins:
   - serverless-offline
 
 functions:
-  createUser:
+  createContact:
     handler: src/handlers/createContact.handler
     events:
       - httpApi:
           path: /contacts
           method: post
+          authorizer:
+            name: jwtAuthorizer
 
-  getUsers:
+  getContacts:
     handler: src/handlers/getContacts.handler
     events:
       - httpApi:
           path: /contacts
           method: get
+          authorizer:
+            name: jwtAuthorizer
+
+  generateUploadUrls:
+    handler: src/handlers/generateUploadUrls.handler
+    events:
+      - httpApi:
+          path: /uploads/presigned-urls
+          method: post
+          authorizer:
+            name: jwtAuthorizer
+
+  getViewUrl:
+    handler: src/handlers/getViewUrls.handler
+    events:
+      - httpApi:
+          path: /uploads/view-url
+          method: get
+          authorizer:
+            name: jwtAuthorizer
