@@ -1,5 +1,5 @@
 service: contact-service
-
+useDotenv: true
 provider:
   name: aws
   runtime: nodejs22.x
@@ -8,6 +8,7 @@ provider:
   environment:
     MONGO_URI: ${env:MONGO_URI}
     BUCKET_NAME: ${env:BUCKET_NAME}
+    EVENT_BUS_NAME: default
   iam:
     role:
       statements:
@@ -15,8 +16,15 @@ provider:
           Action:
             - s3:PutObject
             - s3:GetObject
+            - s3:DeleteObject
           Resource:
             - arn:aws:s3:::${env:BUCKET_NAME}/*
+        
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource:
+            - arn:aws:events:ap-south-1:${aws:accountId}:event-bus/default
 
   httpApi:
     authorizers:      
@@ -30,6 +38,39 @@ provider:
 
 plugins:
   - serverless-offline
+
+resources:
+  Resources:
+    ImageDeleteQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-image-delete-queue
+
+    ImageDeleteRule:
+      Type: AWS::Events::Rule
+      Properties:
+        EventPattern:
+          source:
+            - contact-service
+          detail-type:
+            - ContactImageDeleted
+        Targets:
+          - Arn: !GetAtt ImageDeleteQueue.Arn
+            Id: ImageDeleteQueueTarget
+
+    ImageDeleteQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref ImageDeleteQueue
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action: sqs:SendMessage
+              Resource: !GetAtt ImageDeleteQueue.Arn
 
 functions:
   createContact:
@@ -67,3 +108,18 @@ functions:
           method: get
           authorizer:
             name: jwtAuthorizer
+
+  updateContact:
+    handler: src/handlers/updateContact.handler
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: put
+          authorizer:
+            name: jwtAuthorizer
+
+  deleteImages:
+    handler: src/handlers/deleteImages.handler
+    events:
+      - sqs:
+          arn: !GetAtt ImageDeleteQueue.Arn
