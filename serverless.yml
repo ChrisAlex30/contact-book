@@ -8,7 +8,10 @@ provider:
   environment:
     MONGO_URI: ${env:MONGO_URI}
     BUCKET_NAME: ${env:BUCKET_NAME}
-    EVENT_BUS_NAME: default
+    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID}
+    COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID}
+    EVENT_BUS_NAME: ${env:EVENT_BUS_NAME}
+    SERVICE_NAME: ${self:service}
   iam:
     role:
       statements:
@@ -24,7 +27,8 @@ provider:
           Action:
             - events:PutEvents
           Resource:
-            - arn:aws:events:ap-south-1:${aws:accountId}:event-bus/default
+            - arn:aws:events:${self:provider.region}:${aws:accountId}:event-bus/${env:EVENT_BUS_NAME}
+            
 
   httpApi:
     authorizers:      
@@ -32,9 +36,9 @@ provider:
         type: jwt
         identitySource: 
           - $request.header.Authorization
-        issuerUrl: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_Y0tHEPU6x
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${env:COGNITO_USER_POOL_ID}
         audience:
-          - 7h9mutph8gclo7uoeeloepa3oo
+          - ${env:COGNITO_CLIENT_ID}
 
 plugins:
   - serverless-offline
@@ -45,13 +49,23 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: ${self:service}-image-delete-queue
+        VisibilityTimeout: 10
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt ImageDeleteDLQ.Arn
+          maxReceiveCount: 3
+
+
+    ImageDeleteDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-image-delete-dlq
 
     ImageDeleteRule:
       Type: AWS::Events::Rule
       Properties:
         EventPattern:
           source:
-            - contact-service
+            - ${self:service}
           detail-type:
             - ContactImageDeleted
         Targets:

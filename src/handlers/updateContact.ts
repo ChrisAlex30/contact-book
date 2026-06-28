@@ -49,10 +49,8 @@ const updateContact = async (
     };
   }
 
-  // Save existing images (used later for EventBridge)
   const oldImages = [...contact.images];
 
-  // Partial updates
   contact.name = body.name ?? contact.name;
   contact.email = body.email ?? contact.email;
   contact.phone = body.phone ?? contact.phone;
@@ -85,7 +83,7 @@ if (deletedImages.length > 0) {
         {
           EventBusName: process.env.EVENT_BUS_NAME,
 
-          Source: "contact-service",
+          Source: process.env.SERVICE_NAME,
 
           DetailType: "ContactImageDeleted",
 
