@@ -40,6 +40,20 @@ provider:
         audience:
           - ${env:COGNITO_CLIENT_ID}
 
+    cors:
+      allowedOrigins:
+        - http://localhost:3000
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowCredentials: true
+
 plugins:
   - serverless-offline
 
@@ -68,6 +82,7 @@ resources:
             - ${self:service}
           detail-type:
             - ContactImageDeleted
+            - ContactDeleted
         Targets:
           - Arn: !GetAtt ImageDeleteQueue.Arn
             Id: ImageDeleteQueueTarget
@@ -137,3 +152,12 @@ functions:
     events:
       - sqs:
           arn: !GetAtt ImageDeleteQueue.Arn
+
+  deleteContact:
+    handler: src/handlers/deleteContact.handler
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: delete
+          authorizer:
+            name: jwtAuthorizer

@@ -1,9 +1,18 @@
+import { ZodError } from "zod";
 import { AppError } from "./AppError.js";
 
-export const handleError = (
-  error: unknown
-) => {
+export const handleError = (error: unknown) => {
   console.error(error);
+
+  if (error instanceof ZodError) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Validation failed",
+        errors: error.issues,
+      }),
+    };
+  }
 
   if (error instanceof AppError) {
     return {

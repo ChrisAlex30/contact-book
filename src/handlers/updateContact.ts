@@ -1,14 +1,17 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
-
-import { connectDB } from "../db/connect.js";
-import { updateContactSchema } from "../validators/contact.validator.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { Contact } from "../models/Contact.js";
-
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+
+import { connectDB } from "../db/connect.js";
+import { Contact } from "../models/Contact.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateContactSchema } from "../validators/contact.validator.js";
+import {
+  BadRequestError,
+  NotFoundError,
+} from "../utils/AppError.js";
 
 const eventBridge = new EventBridgeClient({});
 
@@ -23,12 +26,7 @@ const updateContact = async (
   const contactId = event.pathParameters?.id;
 
   if (!contactId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        message: "Contact id is required",
-      }),
-    };
+    throw new BadRequestError("Contact id is required");
   }
 
   const body = updateContactSchema.parse(
@@ -41,12 +39,7 @@ const updateContact = async (
   });
 
   if (!contact) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({
-        message: "Contact not found",
-      }),
-    };
+    throw new NotFoundError("Contact not found");
   }
 
   const oldImages = [...contact.images];
@@ -62,41 +55,36 @@ const updateContact = async (
 
   const deletedImages = oldImages.filter(
     (image) => !contact.images.includes(image)
+  );
+
+  if (deletedImages.length > 0) {
+    console.log(
+      JSON.stringify(
+        {
+          contactId: contact._id,
+          imageKeys: deletedImages,
+        },
+        null,
+        2
+      )
     );
 
-console.log("Deleted Images:", deletedImages);
-
-if (deletedImages.length > 0) {
-    console.log(
-  JSON.stringify(
-    {
-      contactId: contact._id,
-      deletedImages,
-    },
-    null,
-    2
-  )
-);
-  await eventBridge.send(
-    new PutEventsCommand({
-      Entries: [
-        {
-          EventBusName: process.env.EVENT_BUS_NAME,
-
-          Source: process.env.SERVICE_NAME,
-
-          DetailType: "ContactImageDeleted",
-
-          Detail: JSON.stringify({
-            contactId: contact._id.toString(),
-            userId,
-            deletedImages,
-          }),
-        },
-      ],
-    })
-  );
-}
+    await eventBridge.send(
+      new PutEventsCommand({
+        Entries: [
+          {
+            EventBusName: process.env.EVENT_BUS_NAME,
+            Source: process.env.SERVICE_NAME!,
+            DetailType: "ContactImageDeleted",
+            Detail: JSON.stringify({
+              contactId: contact._id.toString(),
+              imageKeys: deletedImages,
+            }),
+          },
+        ],
+      })
+    );
+  }
 
   return {
     statusCode: 200,

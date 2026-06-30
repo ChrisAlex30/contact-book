@@ -13,16 +13,15 @@ export const handler = async (
     const body = JSON.parse(record.body);
 
     const {
-      contactId,
-      userId,
-      deletedImages,
+      contactId,      
+      imageKeys
     } = body.detail;
 
     console.log(
       `Deleting images for contact ${contactId}`
     );
 
-    for (const key of deletedImages) {
+    for (const key of imageKeys) {
       try {
         await s3.send(
           new DeleteObjectCommand({
