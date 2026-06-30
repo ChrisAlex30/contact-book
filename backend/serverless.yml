@@ -1,0 +1,163 @@
+service: contact-service
+useDotenv: true
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  #timeout: 120
+  environment:
+    MONGO_URI: ${env:MONGO_URI}
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID}
+    COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID}
+    EVENT_BUS_NAME: ${env:EVENT_BUS_NAME}
+    SERVICE_NAME: ${self:service}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource:
+            - arn:aws:s3:::${env:BUCKET_NAME}/*
+        
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource:
+            - arn:aws:events:${self:provider.region}:${aws:accountId}:event-bus/${env:EVENT_BUS_NAME}
+            
+
+  httpApi:
+    authorizers:      
+      jwtAuthorizer:
+        type: jwt
+        identitySource: 
+          - $request.header.Authorization
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${env:COGNITO_USER_POOL_ID}
+        audience:
+          - ${env:COGNITO_CLIENT_ID}
+
+    cors:
+      allowedOrigins:
+        - http://localhost:3000
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowCredentials: true
+
+plugins:
+  - serverless-offline
+
+resources:
+  Resources:
+    ImageDeleteQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-image-delete-queue
+        VisibilityTimeout: 10
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt ImageDeleteDLQ.Arn
+          maxReceiveCount: 3
+
+
+    ImageDeleteDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-image-delete-dlq
+
+    ImageDeleteRule:
+      Type: AWS::Events::Rule
+      Properties:
+        EventPattern:
+          source:
+            - ${self:service}
+          detail-type:
+            - ContactImageDeleted
+            - ContactDeleted
+        Targets:
+          - Arn: !GetAtt ImageDeleteQueue.Arn
+            Id: ImageDeleteQueueTarget
+
+    ImageDeleteQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref ImageDeleteQueue
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action: sqs:SendMessage
+              Resource: !GetAtt ImageDeleteQueue.Arn
+
+functions:
+  createContact:
+    handler: src/handlers/createContact.handler
+    events:
+      - httpApi:
+          path: /contacts
+          method: post
+          authorizer:
+            name: jwtAuthorizer
+
+  getContacts:
+    handler: src/handlers/getContacts.handler
+    events:
+      - httpApi:
+          path: /contacts
+          method: get
+          authorizer:
+            name: jwtAuthorizer
+
+  generateUploadUrls:
+    handler: src/handlers/generateUploadUrls.handler
+    events:
+      - httpApi:
+          path: /uploads/presigned-urls
+          method: post
+          authorizer:
+            name: jwtAuthorizer
+
+  getViewUrl:
+    handler: src/handlers/getViewUrls.handler
+    events:
+      - httpApi:
+          path: /uploads/view-url
+          method: get
+          authorizer:
+            name: jwtAuthorizer
+
+  updateContact:
+    handler: src/handlers/updateContact.handler
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: put
+          authorizer:
+            name: jwtAuthorizer
+
+  deleteImages:
+    handler: src/handlers/deleteImages.handler
+    events:
+      - sqs:
+          arn: !GetAtt ImageDeleteQueue.Arn
+
+  deleteContact:
+    handler: src/handlers/deleteContact.handler
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: delete
+          authorizer:
+            name: jwtAuthorizer
