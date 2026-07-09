@@ -42,7 +42,7 @@ const variants = {
   },
 };
 
-export default function Alert({
+export default function AlertMessage({
   title,
   message,
   variant = "error",

@@ -1,11 +1,11 @@
 import GuestRoute from "../components/auth/GuestRoute";
-import RegisterForm from "../components/auth/RegisterForm";
+import ResetPasswordForm from "../components/auth/ResetPasswordForm";
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
   return (
     <GuestRoute>
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <RegisterForm />
+      <ResetPasswordForm />
     </main>
     </GuestRoute>
   );

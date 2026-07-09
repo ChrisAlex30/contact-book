@@ -17,7 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "@/lib/validators";
-import Alert from "./Alert";
+import AlertMessage from "./Alert";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -176,7 +176,7 @@ export default function RegisterForm() {
           onChange={(value) => handleFieldChange(value, setConfirmPassword, setConfirmPasswordError)}
         />
 
-        <Alert variant="error" message={error}/>
+        <AlertMessage  title="Registration Failed" variant="error" message={error}/>
 
         <SubmitButton loading={loading}>
           Create Account

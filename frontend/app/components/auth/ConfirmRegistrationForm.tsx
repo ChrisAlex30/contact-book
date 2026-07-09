@@ -17,7 +17,7 @@ import {
 import AuthCard from "./AuthCard";
 import SubmitButton from "./SubmitButton";
 import TextInput from "./TextInput";
-import Alert from "./Alert";
+import AlertMessage from "./Alert";
 
 export default function ConfirmRegistrationForm() {
     const router = useRouter();
@@ -160,8 +160,8 @@ export default function ConfirmRegistrationForm() {
                         )
                     }
                 />
-                <Alert variant="success" title="Success" message={success}/>
-                <Alert variant="error" title="Verification Failed" message={error}/>
+                <AlertMessage variant="success" title="Email Verified" message={success}/>
+                <AlertMessage variant="error" title="Verification Failed" message={error}/>
 
                 <SubmitButton
                     loading={loading || !!success}

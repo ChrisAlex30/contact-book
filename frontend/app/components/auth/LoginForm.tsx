@@ -11,7 +11,7 @@ import PasswordInput from "./PasswordInput";
 import SubmitButton from "./SubmitButton";
 import AuthCard from "./AuthCard";
 import { validateEmail, validatePassword } from "@/lib/validators";
-import Alert from "./Alert";
+import AlertMessage from "./Alert";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -136,7 +136,7 @@ function validate() {
           </Link>
         </div>
 
-        <Alert variant="error" message={error}/>
+        <AlertMessage variant="error" message={error}   title="Sign In Failed"/>
 
         <SubmitButton loading={loading}>
           Sign In

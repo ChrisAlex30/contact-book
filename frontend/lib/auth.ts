@@ -7,6 +7,7 @@ import {
   signUp,
   confirmSignUp,
   resendSignUpCode,
+  resetPassword,confirmResetPassword
 } from "aws-amplify/auth";
 
 export async function login(email: string, password: string) {
@@ -124,5 +125,23 @@ export async function resendConfirmationCode(
 ) {
   return resendSignUpCode({
     username: email.trim().toLowerCase(),
+  });
+}
+
+export async function forgotPassword(email: string) {
+  return resetPassword({
+    username: email.trim().toLowerCase(),
+  });
+}
+
+export async function resetForgottenPassword(
+  email: string,
+  code: string,
+  newPassword: string
+) {
+  return confirmResetPassword({
+    username: email.trim().toLowerCase(),
+    confirmationCode: code.trim(),
+    newPassword,
   });
 }
