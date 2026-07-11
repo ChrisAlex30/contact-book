@@ -9,7 +9,7 @@ import PasswordInput from "./PasswordInput";
 import SubmitButton from "./SubmitButton";
 import TextInput from "./TextInput";
 
-import AlertMessage from "./Alert";
+import AlertMessage from "@/components/common/AlertMessage";
 
 import {
   resetForgottenPassword,
@@ -197,6 +197,7 @@ export default function ResetPasswordForm() {
 
         <SubmitButton
           loading={loading || !!success}
+          loadingText="Resetting Password..."
         >
           Reset Password
         </SubmitButton>

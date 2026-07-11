@@ -11,7 +11,7 @@ import PasswordInput from "./PasswordInput";
 import SubmitButton from "./SubmitButton";
 import AuthCard from "./AuthCard";
 import { validateEmail, validatePassword } from "@/lib/validators";
-import AlertMessage from "./Alert";
+import AlertMessage from "@/components/common/AlertMessage";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -73,7 +73,6 @@ function validate() {
             return;
       }  
       const result = await login(email.trim(), password);
-
       if (!result.isSignedIn) {
         throw new Error(result.nextStep.signInStep);
       }
@@ -138,7 +137,7 @@ function validate() {
 
         <AlertMessage variant="error" message={error}   title="Sign In Failed"/>
 
-        <SubmitButton loading={loading}>
+        <SubmitButton loading={loading}  loadingText="Signing In...">
           Sign In
         </SubmitButton>
       </form>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import AuthCard from "./AuthCard";
-import AlertMessage from "./Alert";
+import AlertMessage from "@/components/common/AlertMessage";
 import SubmitButton from "./SubmitButton";
 import TextInput from "./TextInput";
 
@@ -133,6 +133,7 @@ export default function ForgotPasswordForm() {
 
         <SubmitButton
           loading={loading || !!success}
+          loadingText="Sending Code..."
         >
           Send Verification Code
         </SubmitButton>

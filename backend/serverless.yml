@@ -119,6 +119,14 @@ functions:
           method: get
           authorizer:
             name: jwtAuthorizer
+  getContact:
+    handler: src/handlers/getContact.handler
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: GET
+          authorizer:
+            name: jwtAuthorizer
 
   generateUploadUrls:
     handler: src/handlers/generateUploadUrls.handler

@@ -1,5 +1,5 @@
-import ConfirmRegistrationForm from "../components/auth/ConfirmRegistrationForm";
-import GuestRoute from "../components/auth/GuestRoute";
+import ConfirmRegistrationForm from "../../components/auth/ConfirmRegistrationForm";
+import GuestRoute from "../../components/auth/GuestRoute";
 
 export default function ConfirmRegistrationPage() {
     return 

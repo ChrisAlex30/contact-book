@@ -17,7 +17,7 @@ import {
 import AuthCard from "./AuthCard";
 import SubmitButton from "./SubmitButton";
 import TextInput from "./TextInput";
-import AlertMessage from "./Alert";
+import AlertMessage from "../common/AlertMessage";
 
 export default function ConfirmRegistrationForm() {
     const router = useRouter();
@@ -165,6 +165,7 @@ export default function ConfirmRegistrationForm() {
 
                 <SubmitButton
                     loading={loading || !!success}
+                    loadingText="Verifying..."
                 >
                     Verify Email
                 </SubmitButton>

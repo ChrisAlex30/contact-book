@@ -17,7 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "@/lib/validators";
-import AlertMessage from "./Alert";
+import AlertMessage from "@/components/common/AlertMessage";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -178,7 +178,7 @@ export default function RegisterForm() {
 
         <AlertMessage  title="Registration Failed" variant="error" message={error}/>
 
-        <SubmitButton loading={loading}>
+        <SubmitButton loading={loading} loadingText="Creating Account...">
           Create Account
         </SubmitButton>
       </form>

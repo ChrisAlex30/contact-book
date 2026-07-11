@@ -1,5 +1,5 @@
-import GuestRoute from "../components/auth/GuestRoute";
-import ResetPasswordForm from "../components/auth/ResetPasswordForm";
+import GuestRoute from "../../components/auth/GuestRoute";
+import ResetPasswordForm from "../../components/auth/ResetPasswordForm";
 
 export default function ResetPasswordPage() {
   return (
