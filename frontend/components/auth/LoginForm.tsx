@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
-import { getAuthErrorMessage, isAuthenticated, login } from "@/lib/auth";
+import {
+  getAuthErrorMessage,
+  isAuthenticated,
+  login,
+} from "@/lib/auth";
 
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
 import SubmitButton from "./SubmitButton";
 import AuthCard from "./AuthCard";
-import { validateEmail, validatePassword } from "@/lib/validators";
+
+import {
+  validateEmail,
+  validatePassword,
+} from "@/lib/validators";
+
 import AlertMessage from "@/components/common/AlertMessage";
 
 export default function LoginForm() {
@@ -18,68 +27,100 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
+
+  const [showContinueVerification, setShowContinueVerification] =
+    useState(false);
+
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-function validate() {
-  let valid = true;
+  function validate() {
+    let valid = true;
 
-  setEmailError("");
-  setPasswordError("");
-  setError("");
+    setEmailError("");
+    setPasswordError("");
+    setError("");
+    setShowContinueVerification(false);
 
-  const emailError = validateEmail(email);
-  const passwordError = validatePassword(password);
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
 
-  if (emailError) {
-    setEmailError(emailError);
-    emailRef.current?.focus();
-    valid = false;
-  }
-
-  if (passwordError) {
-    setPasswordError(passwordError);
-
-    if (!emailError) {
-      passwordRef.current?.focus();
+    if (emailError) {
+      setEmailError(emailError);
+      emailRef.current?.focus();
+      valid = false;
     }
 
-    valid = false;
-  }
+    if (passwordError) {
+      setPasswordError(passwordError);
 
-  return valid;
-}
+      if (!emailError) {
+        passwordRef.current?.focus();
+      }
+
+      valid = false;
+    }
+
+    return valid;
+  }
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ) {
-
     e.preventDefault();
+
     if (loading) return;
+
     if (!validate()) return;
 
     setLoading(true);
+    setError("");
+    setShowContinueVerification(false);
 
     try {
-      const authenticated = await isAuthenticated();
-      
+      const authenticated =
+        await isAuthenticated();
+
       if (authenticated) {
-            router.replace("/dashboard");
-            return;
-      }  
-      const result = await login(email.trim(), password);
-      if (!result.isSignedIn) {
-        throw new Error(result.nextStep.signInStep);
+        router.replace("/dashboard");
+        return;
       }
 
-      router.replace("/dashboard");
+      const result = await login(email.trim(), password);
+
+      if (result.isSignedIn) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      if (result.nextStep.signInStep === "CONFIRM_SIGN_UP") {
+        setError("Your account hasn't been verified yet.");
+        setShowContinueVerification(true);
+        return;
+      }
+
+      setError("Unable to sign in. Please try again.");
     } catch (err) {
-        setError(getAuthErrorMessage(err));
+        console.log(err);
+
+      setError(getAuthErrorMessage(err));
+
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "name" in err &&
+        (err as { name: string }).name ===
+          "UserNotConfirmedException"
+      ) {
+        setShowContinueVerification(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -90,18 +131,21 @@ function validate() {
 
     setEmailError("");
     setError("");
-    }
+    setShowContinueVerification(false);
+  }
 
-    function handlePasswordChange(value: string) {
-        setPassword(value);
+  function handlePasswordChange(value: string) {
+    setPassword(value);
 
-        setPasswordError("");
-        setError("");
-    }
+    setPasswordError("");
+    setError("");
+    setShowContinueVerification(false);
+  }
 
   return (
-    
-      <AuthCard title="Contact Book" subtitle="Welcome back. Sign in to continue.">
+    <AuthCard
+      subtitle="Welcome back. Sign in to continue."
+    >
       <form
         className="space-y-5"
         onSubmit={handleSubmit}
@@ -135,12 +179,38 @@ function validate() {
           </Link>
         </div>
 
-        <AlertMessage variant="error" message={error}   title="Sign In Failed"/>
+        <AlertMessage
+          variant="error"
+          title="Sign In Failed"
+          message={error}
+        />
 
-        <SubmitButton loading={loading}  loadingText="Signing In...">
+        {showContinueVerification && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `/confirm-registration?email=${encodeURIComponent(
+                    email.trim()
+                  )}`
+                )
+              }
+              className="font-medium text-blue-600 hover:underline"
+            >
+              Continue Verification
+            </button>
+          </div>
+        )}
+
+        <SubmitButton
+          loading={loading}
+          loadingText="Signing In..."
+        >
           Sign In
         </SubmitButton>
       </form>
+
       <div className="mt-8 border-t pt-6 text-center text-sm">
         Don't have an account?{" "}
         <Link
@@ -150,7 +220,6 @@ function validate() {
           Create account
         </Link>
       </div>
-      </AuthCard>
-    
+    </AuthCard>
   );
 }

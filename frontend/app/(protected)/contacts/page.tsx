@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import AlertMessage from "@/components/common/AlertMessage";
 
@@ -11,7 +10,7 @@ import ContactList from "@/components/contacts/ContactList";
 import DeleteContactDialog from "@/components/contacts/DeleteContactDialog";
 import EmptyState from "@/components/contacts/EmptyState";
 import LoadingState from "@/components/contacts/LoadingState";
-
+import Pagination from "@/components/contacts/Pagination";
 import TextInput from "@/components/auth/TextInput";
 
 import useContacts from "@/hooks/useContacts";
@@ -28,6 +27,10 @@ export default function ContactsPage() {
     refresh,
     search,
     setSearch,
+    page,
+    setPage,
+    pagination,
+    sort,setSort
   } = useContacts();
 
   const [selected, setSelected] =
@@ -65,7 +68,7 @@ export default function ContactsPage() {
   }
 
   return (
-    <ProtectedRoute>
+    
       <>
         <main className="min-h-screen bg-gray-50">
           <div className="mx-auto max-w-6xl p-8">
@@ -89,9 +92,9 @@ export default function ContactsPage() {
 
             {/* Toolbar */}
             <div className="mb-6 rounded-xl border bg-white p-4 shadow-sm">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 
-                <div className="w-full md:max-w-md">
+                <div className="flex-1">
                   <TextInput
                     label=""
                     placeholder="Search by name, email or phone..."
@@ -100,12 +103,51 @@ export default function ContactsPage() {
                   />
                 </div>
 
-                <Link
-                  href="/contacts/new"
-                  className="rounded-md bg-blue-600 px-4 py-2 text-center text-white transition hover:bg-blue-700"
-                >
-                  Add Contact
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row">
+
+                  <div className="min-w-56">                   
+
+                    <select
+                      value={sort}
+                      onChange={(e) =>
+                        setSort(e.target.value as typeof sort)
+                      }
+                      className="h-10 w-52 rounded-md border px-3"
+                    >
+                      <option value="-createdAt">
+                        Newest First
+                      </option>
+
+                      <option value="createdAt">
+                        Oldest First
+                      </option>
+
+                      <option value="name">
+                        Name (A-Z)
+                      </option>
+
+                      <option value="-name">
+                        Name (Z-A)
+                      </option>
+
+                      <option value="email">
+                        Email (A-Z)
+                      </option>
+
+                      <option value="-email">
+                        Email (Z-A)
+                      </option>
+                    </select>
+                  </div>
+
+                  <Link
+                    href="/contacts/new"
+                    className="inline-flex h-10 items-center rounded-md bg-blue-600 px-5 text-white hover:bg-blue-700"
+                  >
+                    Add Contact
+                  </Link>
+
+                </div>
 
               </div>
             </div>
@@ -121,10 +163,17 @@ export default function ContactsPage() {
             ) : contacts.length === 0 ? (
               <EmptyState />
             ) : (
-              <ContactList
-                contacts={contacts}
-                onDelete={setSelected}
-              />
+              <>
+                <ContactList
+                  contacts={contacts}
+                  onDelete={setSelected}
+                />
+                <Pagination
+                  page={page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setPage}
+                />
+              </>
             )}
 
           </div>
@@ -138,6 +187,6 @@ export default function ContactsPage() {
           onConfirm={handleDelete}
         />
       </>
-    </ProtectedRoute>
+    
   );
 }

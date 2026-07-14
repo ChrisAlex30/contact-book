@@ -4,8 +4,8 @@ export const metadata: Metadata = {
     title: "Login | Contact Book",
 };
 
-import LoginForm from "../../components/auth/LoginForm";
-import GuestRoute from "../../components/auth/GuestRoute";
+import LoginForm from "@/components/auth/LoginForm";
+import GuestRoute from "@/components/auth/GuestRoute";
 
 export default function LoginPage() {
   

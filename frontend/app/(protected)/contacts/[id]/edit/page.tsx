@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LoadingState from "@/components/contacts/LoadingState";
 import AlertMessage from "@/components/common/AlertMessage";
 import ContactForm from "@/components/contacts/ContactForm";
@@ -47,7 +46,6 @@ export default function EditContactPage() {
   }
 
   return (
-    <ProtectedRoute>
       <main className="min-h-screen bg-gray-50">
         <div className="mx-auto max-w-3xl p-8">
 
@@ -71,6 +69,5 @@ export default function EditContactPage() {
 
         </div>
       </main>
-    </ProtectedRoute>
   );
 }

@@ -94,9 +94,8 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <AuthCard
-      title="Forgot Password"
-      subtitle="Enter your email and we'll send you a verification code."
+    <AuthCard      
+      subtitle="Enter your email to reset your password."
     >
       <form
         onSubmit={handleSubmit}

@@ -1,5 +1,5 @@
-import ForgotPasswordForm from "../../components/auth/ForgotPasswordForm";
-import GuestRoute from "../../components/auth/GuestRoute";
+import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+import GuestRoute from "@/components/auth/GuestRoute";
 
 export default function ForgotPasswordPage() {
   return (

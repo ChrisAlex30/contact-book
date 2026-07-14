@@ -129,8 +129,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <AuthCard
-      title="Reset Password"
+    <AuthCard      
       subtitle={`Reset password for ${email}`}
     >
       <form

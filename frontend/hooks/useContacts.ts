@@ -8,6 +8,8 @@ import useDebounce from "./useDebounce";
 
 import type { ContactWithImages } from "@/types/contact";
 
+type sortType="-createdAt"| "createdAt" | "name" | "-name" | "email" | "-email";
+
 export default function useContacts() {
   const [contacts, setContacts] = useState<ContactWithImages[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,40 +17,58 @@ export default function useContacts() {
 
   const [search, setSearch] = useState("");
 
-  const debouncedSearch =
-    useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
+  const debouncedSearch = useDebounce(search, 300);
+
+  const [sort, setSort] = useState<sortType>("-createdAt");
 
   async function loadContacts(
-    search = ""
-  ) {
-    try {
-      setLoading(true);
+  search = "",
+  currentPage = page,
+  currentSort = sort
+) {
+  try {
+    setLoading(true);
 
-      const data =
-        await getContacts(search);
+    const data = await getContacts(
+      search,
+      currentPage,
+      currentSort
+    );
 
-      setContacts(data.contacts);
+    setContacts(data.contacts);
+    setPagination(data.pagination);
+    setError("");
+  } catch (err) {
+    console.error(err);
 
-      setError("");
-    } catch (err) {
-      console.error(err);
-
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(
-          "Unable to load contacts."
-        );
-      }
-    } finally {
-      setLoading(false);
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError(
+        "Unable to load contacts."
+      );
     }
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
-    loadContacts(debouncedSearch);
-  }, [debouncedSearch]);
+      setPage(1);
+    }, [debouncedSearch,sort]);
 
+    useEffect(() => {
+      loadContacts(debouncedSearch, page,sort);
+    }, [debouncedSearch, page,sort]);
   return {
     contacts,
     loading,
@@ -58,6 +78,18 @@ export default function useContacts() {
     setSearch,
 
     refresh: () =>
-      loadContacts(debouncedSearch),
+      loadContacts(
+        debouncedSearch,
+        page,
+        sort
+      ),
+
+    pagination,
+
+    page,
+    setPage,
+
+    sort,
+    setSort
   };
 }

@@ -137,7 +137,7 @@ export default function ConfirmRegistrationForm() {
 
     return (
         <AuthCard
-            title="Verify Email"
+            
             subtitle={`Enter the verification code sent to ${email}`}
         >
             <form

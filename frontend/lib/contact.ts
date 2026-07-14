@@ -19,17 +19,31 @@ export interface ContactsResponse {
   };
 }
 
-export function getContacts(search = "") {
+export function getContacts(search = "",page = 1,sort="-createdAt") {
   const params = new URLSearchParams();
 
   if (search.trim()) {
-    params.set("search", search.trim());
+    params.set(
+      "search",
+      search.trim()
+    );
   }
 
-  const query = params.toString();
+  params.set(
+    "page",
+    page.toString()
+  );
+
+  params.set(
+    "sort",
+    sort
+);
+
+  const query =
+    params.toString();
 
   return apiFetch<ContactsResponse>(
-    `/contacts${query ? `?${query}` : ""}`
+    `/contacts?${query}`
   );
 }
 export function getContact(id: string) {

@@ -17,6 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "@/lib/validators";
+
 import AlertMessage from "@/components/common/AlertMessage";
 
 export default function RegisterForm() {
@@ -26,16 +27,26 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] =
+    useState("");
 
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
 
+  const [
+    showContinueVerification,
+    setShowContinueVerification,
+  ] = useState(false);
+
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [passwordError, setPasswordError] =
+    useState("");
+  const [
+    confirmPasswordError,
+    setConfirmPasswordError,
+  ] = useState("");
 
   function validate() {
     let valid = true;
@@ -61,17 +72,19 @@ export default function RegisterForm() {
       valid = false;
     }
 
-    const passwordValidation = validatePassword(password);
+    const passwordValidation =
+      validatePassword(password);
 
     if (passwordValidation) {
       setPasswordError(passwordValidation);
       valid = false;
     }
 
-    const confirmValidation = validateConfirmPassword(
-      password,
-      confirmPassword
-    );
+    const confirmValidation =
+      validateConfirmPassword(
+        password,
+        confirmPassword
+      );
 
     if (confirmValidation) {
       setConfirmPasswordError(confirmValidation);
@@ -81,7 +94,9 @@ export default function RegisterForm() {
     return valid;
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
 
     if (loading) return;
@@ -90,6 +105,9 @@ export default function RegisterForm() {
 
     setLoading(true);
 
+    setError("");
+    setShowContinueVerification(false);
+
     try {
       const result = await register(
         name.trim(),
@@ -97,10 +115,10 @@ export default function RegisterForm() {
         password
       );
 
-      console.log(result);
-
       if (!result.nextStep.signUpStep) {
-        throw new Error("Unexpected sign up response.");
+        throw new Error(
+          "Unexpected sign up response."
+        );
       }
 
       router.push(
@@ -108,30 +126,43 @@ export default function RegisterForm() {
           email.trim()
         )}`
       );
-    } catch (err) {
-      console.error(err);
+    } catch (err) {      
 
       setError(getAuthErrorMessage(err));
+
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "name" in err &&
+        (err as { name: string }).name ===
+          "UsernameExistsException"
+      ) {
+        setShowContinueVerification(true);
+      }
     } finally {
       setLoading(false);
     }
   }
 
   function handleFieldChange(
-      value: string,
-      setValue: React.Dispatch<React.SetStateAction<string>>,
-      clearError?: React.Dispatch<React.SetStateAction<string>>
-    ) {
-      setValue(value);
+    value: string,
+    setValue: React.Dispatch<
+      React.SetStateAction<string>
+    >,
+    clearError?: React.Dispatch<
+      React.SetStateAction<string>
+    >
+  ) {
+    setValue(value);
 
-      clearError?.("");
+    clearError?.("");
 
-      setError("");
-    }
+    setError("");
+    setShowContinueVerification(false);
+  }
 
   return (
     <AuthCard
-      title="Create Account"
       subtitle="Create your Contact Book account."
     >
       <form
@@ -145,7 +176,13 @@ export default function RegisterForm() {
           autoFocus
           error={nameError}
           disabled={loading}
-          onChange={(value) => handleFieldChange(value, setName, setNameError)}
+          onChange={(value) =>
+            handleFieldChange(
+              value,
+              setName,
+              setNameError
+            )
+          }
         />
 
         <TextInput
@@ -155,7 +192,13 @@ export default function RegisterForm() {
           autoComplete="email"
           error={emailError}
           disabled={loading}
-          onChange={(value) => handleFieldChange(value, setEmail, setEmailError)}
+          onChange={(value) =>
+            handleFieldChange(
+              value,
+              setEmail,
+              setEmailError
+            )
+          }
         />
 
         <PasswordInput
@@ -164,7 +207,13 @@ export default function RegisterForm() {
           autoComplete="new-password"
           error={passwordError}
           disabled={loading}
-          onChange={(value) => handleFieldChange(value, setPassword, setPasswordError)}
+          onChange={(value) =>
+            handleFieldChange(
+              value,
+              setPassword,
+              setPasswordError
+            )
+          }
         />
 
         <PasswordInput
@@ -173,12 +222,43 @@ export default function RegisterForm() {
           autoComplete="new-password"
           error={confirmPasswordError}
           disabled={loading}
-          onChange={(value) => handleFieldChange(value, setConfirmPassword, setConfirmPasswordError)}
+          onChange={(value) =>
+            handleFieldChange(
+              value,
+              setConfirmPassword,
+              setConfirmPasswordError
+            )
+          }
         />
 
-        <AlertMessage  title="Registration Failed" variant="error" message={error}/>
+        <AlertMessage
+          title="Registration Failed"
+          variant="error"
+          message={error}
+        />
 
-        <SubmitButton loading={loading} loadingText="Creating Account...">
+        {showContinueVerification && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `/confirm-registration?email=${encodeURIComponent(
+                    email.trim()
+                  )}`
+                )
+              }
+              className="font-medium text-blue-600 hover:underline"
+            >
+              Continue Verification
+            </button>
+          </div>
+        )}
+
+        <SubmitButton
+          loading={loading}
+          loadingText="Creating Account..."
+        >
           Create Account
         </SubmitButton>
       </form>

@@ -62,10 +62,10 @@ export function getAuthErrorMessage(error: unknown): string {
         return "Account not found.";
 
       case "UserNotConfirmedException":
-        return "Please verify your email first.";
+        return "Your email hasn't been verified yet.";
 
       case "UsernameExistsException":
-        return "An account with this email already exists.";
+        return "An account with this email already exists but hasn't been verified yet.";
 
       case "InvalidPasswordException":
         return "Password does not meet the required policy.";
