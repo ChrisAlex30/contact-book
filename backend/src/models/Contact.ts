@@ -48,6 +48,16 @@ const contactSchema = new mongoose.Schema(
   }
 );
 
+contactSchema.index({
+  userId: 1,
+  createdAt: -1,
+});
+
+contactSchema.index({
+  userId: 1,
+  name: 1,
+});
+
 export const Contact = mongoose.model(
   "Contact",
   contactSchema
