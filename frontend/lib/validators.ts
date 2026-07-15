@@ -20,11 +20,34 @@ export function validatePassword(password: string): string | null {
   return null;
 }
 
-export function validateName(name: string) {
-    if (!name.trim())
-        return "Name is required.";
+export function validatePhone(phone: string): string | null {
+  const value = phone.trim();
 
-    return null;
+  if (!value) {
+    return "Phone number is required.";
+  }
+
+  if (!/^\d{10}$/.test(value)) {
+    return "Please enter a valid 10-digit phone number.";
+  }
+
+  return null;
+}
+
+export function validateName(
+  name: string
+): string | null {
+  const value = name.trim();
+
+  if (!value) {
+    return "Name is required.";
+  }
+
+  if (value.length < 2) {
+    return "Name must be at least 2 characters.";
+  }
+
+  return null;
 }
 
 export function validateConfirmPassword(

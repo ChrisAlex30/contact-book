@@ -6,7 +6,6 @@ export async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getAccessToken();
-console.log(token)
   const response = await fetch(`${config.apiUrl}${endpoint}`, {
     ...options,
     headers: {

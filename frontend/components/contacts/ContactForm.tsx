@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import AlertMessage from "@/components/common/AlertMessage";
 import SubmitButton from "@/components/auth/SubmitButton";
@@ -20,8 +21,13 @@ import {
   uploadFile,
 } from "@/lib/upload";
 
+import {
+  validateName,
+  validateEmail,
+  validatePhone,
+} from "@/lib/validators";
+
 import type { ContactWithImages } from "@/types/contact";
-import Link from "next/link";
 
 interface Props {
   mode?: "create" | "edit";
@@ -63,7 +69,54 @@ export default function ContactForm({
   const [error, setError] =
     useState("");
 
-  function removeExistingImage(key: string) {
+  const [nameError, setNameError] =
+    useState("");
+
+  const [emailError, setEmailError] =
+    useState("");
+
+  const [phoneError, setPhoneError] =
+    useState("");
+
+  function validate() {
+    let valid = true;
+
+    setError("");
+
+    setNameError("");
+    setEmailError("");
+    setPhoneError("");
+
+    const nameValidation =
+      validateName(name);
+
+    if (nameValidation) {
+      setNameError(nameValidation);
+      valid = false;
+    }
+
+    const emailValidation =
+      validateEmail(email);
+
+    if (emailValidation) {
+      setEmailError(emailValidation);
+      valid = false;
+    }
+
+    const phoneValidation =
+      validatePhone(phone);
+
+    if (phoneValidation) {
+      setPhoneError(phoneValidation);
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  function removeExistingImage(
+    key: string
+  ) {
     setExistingImages((images) =>
       images.filter(
         (image) => image.key !== key
@@ -72,6 +125,9 @@ export default function ContactForm({
   }
 
   async function createContactFlow() {
+  let imageKeys: string[] = [];
+
+  if (files.length > 0) {
     const { uploads } =
       await generateUploadUrls(
         files.map((file) => ({
@@ -93,20 +149,25 @@ export default function ContactForm({
       )
     );
 
-    await createContact({
-      name,
-      email,
-      phone,
-      contactType,
-      images: uploads.map(
-        (upload) => upload.key
-      ),
-    });
+    imageKeys = uploads.map(
+      (upload) => upload.key
+    );
   }
+
+  await createContact({
+    name,
+    email,
+    phone,
+    contactType,
+    images: imageKeys,
+  });
+}
 
   async function updateContactFlow() {
     if (!contact) {
-      throw new Error("Contact not found.");
+      throw new Error(
+        "Contact not found."
+      );
     }
 
     let uploadedKeys: string[] = [];
@@ -162,6 +223,8 @@ export default function ContactForm({
 
     if (loading) return;
 
+    if (!validate()) return;
+
     try {
       setLoading(true);
       setError("");
@@ -174,8 +237,6 @@ export default function ContactForm({
 
       router.replace("/contacts");
     } catch (err) {
-      console.error(err);
-
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -190,7 +251,7 @@ export default function ContactForm({
     }
   }
 
-  return (
+    return (
     <form
       onSubmit={handleSubmit}
       className="space-y-5 rounded-xl border bg-white p-6 shadow"
@@ -198,23 +259,38 @@ export default function ContactForm({
       <TextInput
         label="Name"
         value={name}
+        error={nameError}
         disabled={loading}
-        onChange={setName}
+        onChange={(value) => {
+          setName(value);
+          setNameError("");
+          setError("");
+        }}
       />
 
       <TextInput
         label="Email"
         type="email"
         value={email}
+        error={emailError}
         disabled={loading}
-        onChange={setEmail}
+        onChange={(value) => {
+          setEmail(value);
+          setEmailError("");
+          setError("");
+        }}
       />
 
       <TextInput
         label="Phone"
         value={phone}
+        error={phoneError}
         disabled={loading}
-        onChange={setPhone}
+        onChange={(value) => {
+          setPhone(value);
+          setPhoneError("");
+          setError("");
+        }}
       />
 
       <div>
@@ -269,26 +345,28 @@ export default function ContactForm({
       />
 
       <div className="flex justify-end gap-3">
-        <Link
-          href="/contacts"
-          className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100"
+        <button
+        type="button"
+        disabled={loading}
+        onClick={() => router.push("/contacts")}
+        className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+      >
+        Cancel
+      </button>
+
+        <SubmitButton
+          loading={loading}
+          loadingText={
+            mode === "create"
+              ? "Saving Contact..."
+              : "Updating Contact..."
+          }
         >
-          Cancel
-        </Link>
-  
-  <SubmitButton
-    loading={loading}
-    loadingText={
-      mode === "create"
-        ? "Saving Contact..."
-        : "Updating Contact..."
-    }
-  >
-    {mode === "create"
-      ? "Save Contact"
-      : "Update Contact"}
-  </SubmitButton>
-</div>
+          {mode === "create"
+            ? "Save Contact"
+            : "Update Contact"}
+        </SubmitButton>
+      </div>
     </form>
   );
 }
