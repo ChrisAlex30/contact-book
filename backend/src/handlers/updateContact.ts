@@ -58,16 +58,6 @@ const updateContact = async (
   );
 
   if (deletedImages.length > 0) {
-    console.log(
-      JSON.stringify(
-        {
-          contactId: contact._id,
-          imageKeys: deletedImages,
-        },
-        null,
-        2
-      )
-    );
 
     await eventBridge.send(
       new PutEventsCommand({

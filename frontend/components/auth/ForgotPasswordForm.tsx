@@ -70,9 +70,6 @@ export default function ForgotPasswordForm() {
 
     try {
       const result = await forgotPassword(email);
-
-      console.log(result);
-
       setSuccess(
         "We've sent a verification code to your email."
       );
