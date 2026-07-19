@@ -16,7 +16,7 @@ export default function Pagination({
   }
 
   return (
-    <div className="mt-8 flex items-center justify-between rounded-xl border bg-white p-4 shadow-sm">
+    <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-xl border bg-white p-4 shadow-sm sm:flex-nowrap sm:justify-between sm:gap-0">
 
       <button
         type="button"
