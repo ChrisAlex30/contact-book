@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 interface Props {
   page: number;
   totalPages: number;
@@ -16,17 +18,16 @@ export default function Pagination({
   }
 
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-xl border bg-white p-3 shadow-sm sm:flex-nowrap sm:justify-between sm:gap-0 sm:p-4">
+    <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-xl border bg-white p-2 shadow-sm sm:flex-nowrap sm:justify-between sm:gap-0 sm:p-2">
 
       <button
         type="button"
         disabled={page === 1}
         onClick={() => onPageChange(page - 1)}
         aria-label="Previous page"
-        className="rounded-md border px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-base"
+        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <span className="sm:hidden">←</span>
-        <span className="hidden sm:inline">← Previous</span>
+        <ChevronLeft className="h-4 w-4" />
       </button>
 
       <span className="text-sm font-medium text-gray-600">
@@ -38,10 +39,9 @@ export default function Pagination({
         disabled={page === totalPages}
         onClick={() => onPageChange(page + 1)}
         aria-label="Next page"
-        className="rounded-md border px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-base"
+        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <span className="sm:hidden">→</span>
-        <span className="hidden sm:inline">Next →</span>
+        <ChevronRight className="h-4 w-4" />
       </button>
 
     </div>

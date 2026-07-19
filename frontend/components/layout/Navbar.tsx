@@ -138,68 +138,78 @@ export default function Navbar() {
           className="flex items-center justify-center rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 lg:hidden"
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
+          <span className="relative block h-6 w-6">
+            <Menu
+              className={`absolute inset-0 h-6 w-6 transition-all duration-300 ease-in-out ${
+                mobileMenuOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+              }`}
+            />
+            <X
+              className={`absolute inset-0 h-6 w-6 transition-all duration-300 ease-in-out ${
+                mobileMenuOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+              }`}
+            />
+          </span>
         </button>
 
       </div>
 
-      {mobileMenuOpen && (
-        <div className="border-t bg-white lg:hidden">
-          <div className="flex flex-col gap-1 px-8 py-4">
+      <div
+        className={`overflow-hidden transition-all duration-300 lg:hidden ${
+          mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+        inert={!mobileMenuOpen || undefined}
+      >
+        <div className="flex flex-col gap-1 border-t bg-white px-3 py-4">
 
-            <div className="mb-2 flex items-center gap-3">
+          <div className="mb-2 flex items-center gap-3">
 
-              <Avatar
-                name={name || "User"}
-                size={42}
-              />
+            <Avatar
+              name={name || "User"}
+              size={42}
+            />
 
-              <div>
-                <p className="font-medium leading-5">
-                  {name || "User"}
-                </p>
+            <div>
+              <p className="font-medium leading-5">
+                {name || "User"}
+              </p>
 
-                <p className="text-sm text-gray-500 leading-5">
-                  {email}
-                </p>
-              </div>
-
+              <p className="text-sm text-gray-500 leading-5">
+                {email}
+              </p>
             </div>
 
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`py-2 ${linkClass("/dashboard")}`}
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/contacts"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`py-2 ${linkClass("/contacts")}`}
-            >
-              Contacts
-            </Link>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={loading}
-              className="mt-2 border-t pt-3 text-left text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading
-                ? "Signing Out..."
-                : "Logout"}
-            </button>
-
           </div>
+
+          <Link
+            href="/dashboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`py-2 ${linkClass("/dashboard")}`}
+          >
+            Dashboard
+          </Link>
+
+          <Link
+            href="/contacts"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`py-2 ${linkClass("/contacts")}`}
+          >
+            Contacts
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loading}
+            className="mt-2 border-t pt-3 text-left text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading
+              ? "Signing Out..."
+              : "Logout"}
+          </button>
+
         </div>
-      )}
+      </div>
 
     </header>
   );
