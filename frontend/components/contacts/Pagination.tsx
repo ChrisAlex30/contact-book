@@ -16,15 +16,17 @@ export default function Pagination({
   }
 
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-xl border bg-white p-4 shadow-sm sm:flex-nowrap sm:justify-between sm:gap-0">
+    <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-xl border bg-white p-3 shadow-sm sm:flex-nowrap sm:justify-between sm:gap-0 sm:p-4">
 
       <button
         type="button"
         disabled={page === 1}
         onClick={() => onPageChange(page - 1)}
-        className="rounded-md border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+        aria-label="Previous page"
+        className="rounded-md border px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-base"
       >
-        ← Previous
+        <span className="sm:hidden">←</span>
+        <span className="hidden sm:inline">← Previous</span>
       </button>
 
       <span className="text-sm font-medium text-gray-600">
@@ -35,9 +37,11 @@ export default function Pagination({
         type="button"
         disabled={page === totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="rounded-md border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+        aria-label="Next page"
+        className="rounded-md border px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-base"
       >
-        Next →
+        <span className="sm:hidden">→</span>
+        <span className="hidden sm:inline">Next →</span>
       </button>
 
     </div>

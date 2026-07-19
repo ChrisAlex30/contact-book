@@ -105,14 +105,14 @@ export default function ContactsPage() {
 
                 <div className="flex flex-col gap-2 sm:flex-row">
 
-                  <div className="min-w-56">                   
+                  <div className="w-full sm:w-auto sm:min-w-56">
 
                     <select
                       value={sort}
                       onChange={(e) =>
                         setSort(e.target.value as typeof sort)
                       }
-                      className="h-10 w-52 rounded-md border px-3"
+                      className="h-10 w-full rounded-md border px-3 sm:w-52"
                     >
                       <option value="-createdAt">
                         Newest First
