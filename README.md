@@ -8,7 +8,7 @@ The application provides secure authentication with Amazon Cognito, image upload
 
 ## 🏗️ Architecture
 
-![Contact Book Architecture](docs/architecture.png)
+![Contact Book Architecture](docs/contactbook-architecture.png)
 
 
 ## ✨ Features
