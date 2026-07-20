@@ -358,8 +358,8 @@ export default function ContactForm({
           loading={loading}
           loadingText={
             mode === "create"
-              ? "Saving Contact..."
-              : "Updating Contact..."
+              ? "Saving..."
+              : "Updating..."
           }
         >
           {mode === "create"

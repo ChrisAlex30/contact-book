@@ -20,7 +20,9 @@ import {
   validateConfirmationCode,
   validatePassword,
   validateConfirmPassword,
+  isPasswordValid,
 } from "@/lib/validators";
+import PasswordRequirements from "./PasswordRequirements";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -127,6 +129,7 @@ export default function ResetPasswordForm() {
       setLoading(false);
     }
   }
+  const canSubmit = isPasswordValid(password);
 
   return (
     <AuthCard      
@@ -166,7 +169,7 @@ export default function ResetPasswordForm() {
             )
           }
         />
-
+        <PasswordRequirements password={password} />
         <PasswordInput
           label="Confirm Password"
           value={confirmPassword}
@@ -196,6 +199,7 @@ export default function ResetPasswordForm() {
 
         <SubmitButton
           loading={loading || !!success}
+          disabled={!canSubmit}
           loadingText="Resetting Password..."
         >
           Reset Password

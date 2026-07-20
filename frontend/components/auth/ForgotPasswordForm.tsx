@@ -69,7 +69,7 @@ export default function ForgotPasswordForm() {
     setLoading(true);
 
     try {
-      const result = await forgotPassword(email);
+      await forgotPassword(email);
       setSuccess(
         "We've sent a verification code to your email."
       );
