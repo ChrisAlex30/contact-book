@@ -1,5 +1,8 @@
-"use client";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Dashboard | Contact Book",
+};
 import Link from "next/link";
 
 export default function DashboardPage() {

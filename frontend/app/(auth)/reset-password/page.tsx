@@ -1,6 +1,10 @@
 import GuestRoute from "@/components/auth/GuestRoute";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Reset Password | Contact Book",
+};
 export default function ResetPasswordPage() {
   return (
     <GuestRoute>

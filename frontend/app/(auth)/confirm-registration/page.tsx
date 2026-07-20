@@ -1,6 +1,10 @@
 import ConfirmRegistrationForm from "@/components/auth/ConfirmRegistrationForm";
 import GuestRoute from "@/components/auth/GuestRoute";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Confirm Registration | Contact Book",
+};
 export default function ConfirmRegistrationPage() {
     return  (
      <GuestRoute>

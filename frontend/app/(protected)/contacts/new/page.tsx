@@ -1,5 +1,9 @@
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import ContactForm from "@/components/contacts/ContactForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Add/Update Contacts | Contact Book",
+};
 
 export default function NewContactPage() {
   return (
