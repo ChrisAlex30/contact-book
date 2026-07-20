@@ -75,3 +75,27 @@ export function validateConfirmationCode(
 
     return null;
 }
+
+export type PasswordChecks = {
+  minLength: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  number: boolean;
+  special: boolean;
+};
+
+export function validatePasswordCharacters(password: string): PasswordChecks {
+  return {
+    minLength: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+}
+
+export function isPasswordValid(password: string) {
+  const checks = validatePasswordCharacters(password);
+
+  return Object.values(checks).every(Boolean);
+}

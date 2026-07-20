@@ -16,9 +16,11 @@ import {
   validateName,
   validatePassword,
   validateConfirmPassword,
+  isPasswordValid,
 } from "@/lib/validators";
 
 import AlertMessage from "@/components/common/AlertMessage";
+import PasswordRequirements from "./PasswordRequirements";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -161,6 +163,8 @@ export default function RegisterForm() {
     setShowContinueVerification(false);
   }
 
+  const canSubmit = isPasswordValid(password);
+
   return (
     <AuthCard
       subtitle="Create your Contact Book account."
@@ -216,6 +220,8 @@ export default function RegisterForm() {
           }
         />
 
+        <PasswordRequirements password={password} />
+
         <PasswordInput
           label="Confirm Password"
           value={confirmPassword}
@@ -256,6 +262,7 @@ export default function RegisterForm() {
         )}
 
         <SubmitButton
+          disabled={!canSubmit}
           loading={loading}
           loadingText="Creating Account..."
         >

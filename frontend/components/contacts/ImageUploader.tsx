@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 
 interface ImageUploaderProps {
   files: File[];
@@ -16,12 +17,15 @@ const ALLOWED_TYPES = [
   "image/webp",
   "image/gif",
 ];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export default function ImageUploader({
   files,
   disabled,
   onChange,
 }: ImageUploaderProps) {
+
+  const [imageError, setImageError] = useState("");
   function handleSelect(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -29,21 +33,66 @@ export default function ImageUploader({
       e.target.files ?? []
     );
 
-    const validFiles = selectedFiles.filter((file) =>
-      ALLOWED_TYPES.includes(file.type)
-    );
+    setImageError("");
 
-    const updatedFiles = [
-      ...files,
-      ...validFiles,
-    ].slice(0, MAX_FILES);
+    const remainingSlots = MAX_FILES - files.length;
 
-    onChange(updatedFiles);
+    if (remainingSlots <= 0) {
+      setImageError(
+        "You can upload a maximum of 5 images."
+      );
+      e.target.value = "";
+      return;
+    }
+
+    const acceptedFiles: File[] = [];
+
+    let skippedType = false;
+    let skippedSize = false;
+    let skippedLimit = false;
+
+    for (const file of selectedFiles) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        skippedType = true;
+        continue;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        skippedSize = true;
+        continue;
+      }
+
+      if (acceptedFiles.length >= remainingSlots) {
+        skippedLimit = true;
+        continue;
+      }
+
+      acceptedFiles.push(file);
+    }
+
+    if (acceptedFiles.length > 0) {
+      onChange([...files, ...acceptedFiles]);
+    }
+
+    if (skippedType) {
+      setImageError(
+        "Only JPG, PNG, WEBP and GIF images are allowed."
+      );
+    } else if (skippedSize) {
+      setImageError(
+        "Image must be smaller than 5 MB."
+      );
+    } else if (skippedLimit) {
+      setImageError(
+        "Only 5 images allowed."
+      );
+    }
 
     e.target.value = "";
   }
 
   function removeFile(index: number) {
+    setImageError("");
     onChange(
       files.filter((_, i) => i !== index)
     );
@@ -68,8 +117,14 @@ export default function ImageUploader({
         />
 
         <p className="mt-2 text-sm text-gray-500">
-          Maximum 5 images.
+          Maximum 5 images. JPG, PNG, WEBP or GIF. Max size 5 MB each.
         </p>
+
+        {imageError && (
+          <p className="mt-2 text-sm text-red-600">
+            {imageError}
+          </p>
+        )}
 
       </div>
 
