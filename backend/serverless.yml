@@ -44,6 +44,7 @@ provider:
       allowedOrigins:
         - http://localhost:3000
         - https://master.d20i0tlmlskuen.amplifyapp.com
+        - https://contactbook.chrisalex.online
       allowedHeaders:
         - Content-Type
         - Authorization
